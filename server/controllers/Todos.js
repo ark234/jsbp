@@ -11,7 +11,7 @@ const Todos = {
       .then(foundUser => {
         // Add newly created todo to user's todoList
         foundUser.todoList.push(todo);
-        // Save modified user to MongoDB
+        // Save modified user to DB
         foundUser.save().then(savedUser => {
           console.log('Todo successfully added.');
           res.locals.savedUser = savedUser;
@@ -45,7 +45,7 @@ const Todos = {
         // Mongoose arrays have special id method for finding subdocuments
         let todo = foundUser.todoList.id(todoId);
         todo.text = text; // update the text
-        // Save updated user
+        // Save modified user to DB
         foundUser.save().then(savedUser => {
           console.log('User todo updated successfully.');
           res.locals.savedUser = savedUser;
@@ -58,7 +58,24 @@ const Todos = {
       });
   },
   // Middleware for deleting todo in user's todoList
-  deleteTodo(req, res, next) {}
+  deleteTodo(req, res, next) {
+    const { userId, todoId } = req.body;
+    User.findById(userId)
+      .then(foundUser => {
+        // Mongoose docs have built-in remove method
+        foundUser.todoList.id(todoId).remove();
+        // Save modified user to DB
+        foundUser.save().then(savedUser => {
+          console.log('User todo deleted successfully.');
+          res.locals.savedUser = savedUser;
+          next();
+        });
+      })
+      .catch(err => {
+        console.error('Error in Todos.deleteTodo ===>', err);
+        next(err);
+      });
+  }
 };
 
 module.exports = Todos;
