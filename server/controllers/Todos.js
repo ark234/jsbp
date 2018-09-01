@@ -25,7 +25,7 @@ const Todos = {
   },
   // Middleware for retrieving user's todoList
   getTodos(req, res, next) {
-    const userId = req.body.userId;
+    const userId = req.params.userId;
     User.findById(userId)
       .then(foundUser => {
         console.log('User todos found ===>', foundUser.todoList);
