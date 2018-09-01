@@ -42,18 +42,15 @@ const Todos = {
     const { userId, todoId, text } = req.body;
     User.findById(userId)
       .then(foundUser => {
-        // for of loop allows us to break once we find matching todo
-        for (let todo of foundUser.todoList) {
-          if (todo._id === todoId) {
-            todo.text = text;
-            foundUser.save().then(savedUser => {
-              console.log('User todo updated successfully.');
-              res.locals.savedUser = savedUser;
-              next();
-            });
-            break;
-          }
-        }
+        // Mongoose arrays have special id method for finding subdocuments
+        let todo = foundUser.todoList.id(todoId);
+        todo.text = text; // update the text
+        // Save updated user
+        foundUser.save().then(savedUser => {
+          console.log('User todo updated successfully.');
+          res.locals.savedUser = savedUser;
+          next();
+        });
       })
       .catch(err => {
         console.error('Error in Todos.updateTodo ===>', err);
