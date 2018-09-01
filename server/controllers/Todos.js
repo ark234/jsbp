@@ -24,7 +24,19 @@ const Todos = {
       });
   },
   // Middleware for retrieving user's todoList
-  getTodos(req, res, next) {},
+  getTodos(req, res, next) {
+    const userId = req.body.userId;
+    User.findById(userId)
+      .then(foundUser => {
+        console.log('User todos found ===>', foundUser.todoList);
+        res.locals.todoList = foundUser.todoList;
+        next();
+      })
+      .catch(err => {
+        console.error('Error in Todos.getTodos ===>', err);
+        next(err);
+      });
+  },
   // Middleware for updating todo in user's todoList
   updateTodo(req, res, next) {},
   // Middleware for deleting todo in user's todoList
