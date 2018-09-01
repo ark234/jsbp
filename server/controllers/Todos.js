@@ -38,7 +38,28 @@ const Todos = {
       });
   },
   // Middleware for updating todo in user's todoList
-  updateTodo(req, res, next) {},
+  updateTodo(req, res, next) {
+    const { userId, todoId, text } = req.body;
+    User.findById(userId)
+      .then(foundUser => {
+        // for of loop allows us to break once we find matching todo
+        for (let todo of foundUser.todoList) {
+          if (todo._id === todoId) {
+            todo.text = text;
+            foundUser.save().then(savedUser => {
+              console.log('User todo updated successfully.');
+              res.locals.savedUser = savedUser;
+              next();
+            });
+            break;
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Error in Todos.updateTodo ===>', err);
+        next(err);
+      });
+  },
   // Middleware for deleting todo in user's todoList
   deleteTodo(req, res, next) {}
 };
